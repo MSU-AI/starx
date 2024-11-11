@@ -2,6 +2,8 @@ from smbus2 import SMBus
 import time
 import struct
 
+I2C_BUS_NUMBER = 1
+
 # I2C address of the Arduino
 ARDUINO_I2C_ADDRESS = 0x08
 
@@ -10,6 +12,9 @@ TOTAL_BYTES = 96
 
 # Maximum bytes per I2C transaction (due to limitations)
 CHUNK_SIZE = 32
+
+OUTPUT_FILE = "left_data.txt"
+
 
 def read_i2c_data(bus, addr, total_bytes, chunk_size):
     data = []
@@ -21,8 +26,9 @@ def read_i2c_data(bus, addr, total_bytes, chunk_size):
         data.extend(chunk_data)
     return data
 
-#dont forget to change bus (either 1 or 7)
-with SMBus(7) as bus:  # Use the correct I2C bus number
+
+
+with SMBus(I2C_BUS_NUMBER) as bus, open(OUTPUT_FILE,'w') as f:  # Use the correct I2C bus number
     while True:
         try:
             # Read data in chunks
@@ -41,12 +47,10 @@ with SMBus(7) as bus:  # Use the correct I2C bus number
             slaveData = floats[12:]
 
             # Print the data
-            print("master_data:", masterData)
-            print("slave_data:", slaveData)
-            # quit()
-            # Wait before the next request
-            # time.sleep(0.1)  # Adjust as needed
+            f.write(f"{time.time()}\nM: {masterData}\nS:{slaveData}")
+            # print(f"{time.time()}\nM: {masterData}\nS:{slaveData}")
 
         except Exception as e:
-            print("Error:", e)
-            time.sleep(1)
+            f.write(f"Error: {e}")
+            # print((f"Error: {e}"))
+
